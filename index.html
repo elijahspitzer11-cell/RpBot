@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RpBot</title>
+  <style>
+    body {
+      background-color: #0f0c1b;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #ffffff;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      transition: background-color 0.5s ease;
+      position: relative;
+    }
+
+    /* Background image layer */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('Background/background.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0.15;
+      z-index: -1;
+      transition: opacity 0.5s ease;
+    }
+
+    body.commands-active {
+      background-color: #494343;
+    }
+
+    body.commands-active::before {
+      opacity: 0;
+    }
+
+    .main-container {
+      width: 100%;
+      max-width: 800px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Top Wavy Version Text */
+    .version-tag {
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+      display: inline-block;
+      animation: waveMotion 2.5s ease-in-out infinite;
+    }
+
+    .home-pfp {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      margin: 0 0 10px 0;
+    }
+
+    .subtitle {
+      color: #a0a0b8;
+      font-size: 1.2rem;
+      margin-bottom: 25px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 16px 36px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      display: inline-block;
+    }
+
+    .btn-invite { background-color: #00438B; }
+    .btn-commands { background-color: #710000; }
+    .btn:hover { transform: translateY(-5px) scale(1.03); }
+
+    .disclaimer-text {
+      color: #ffffff;
+      font-size: 0.85rem;
+      opacity: 0.85;
+      text-align: center;
+      max-width: 500px;
+      line-height: 1.4;
+      margin: 10px auto 0 auto;
+    }
+
+    .page-section { 
+      display: none; 
+      width: 100%;
+    }
+    .page-section.active { 
+      display: flex; 
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .command-card {
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      text-align: left;
+      width: 100%;
+      box-sizing: border-box;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-memory { background-color: #9C004E; }
+    .card-roleplay { background-color: #008D34; }
+    .card-rules { background-color: #FF0000; }
+    
+    .card-server-helper { 
+      background-color: #FEA12F;
+      animation: waveMotion 2.5s ease-in-out infinite;
+    }
+
+    @keyframes waveMotion {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      25% { transform: translateY(-5px) rotate(-0.5deg); }
+      75% { transform: translateY(5px) rotate(0.5deg); }
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #ffffff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      padding-bottom: 8px;
+    }
+
+    .cmd-text {
+      color: #ffffff;
+      margin: 0 0 10px 0;
+      line-height: 1.5;
+    }
+
+    .green-text { color: #00FF5E !important; }
+
+    .cmd-code {
+      font-family: monospace;
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    .nav-back {
+      background: none;
+      border: none;
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 25px;
+      align-self: flex-start;
+    }
+    .nav-back:hover { opacity: 0.8; }
+
+    .commands-footer-text {
+      color: #ffffff;
+      font-size: 0.95rem;
+      text-align: center;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    .music-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      z-index: 10;
+    }
+
+    /* Bottom-Left Status Indicator */
+    .status-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 16px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+    }
+
+    .status-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      animation: blink 2s infinite ease-in-out;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.2; transform: scale(0.85); }
+    }
+
+    @keyframes textFlash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    .status-text {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .status-text.flash {
+      animation: textFlash 2s infinite ease-in-out;
+    }
+
+    .status-green { background-color: #09B200; box-shadow: 0 0 10px #09B200; }
+    .status-red { background-color: #BD0000; box-shadow: 0 0 10px #BD0000; }
+    .status-yellow { background-color: #FFE602; box-shadow: 0 0 10px #FFE602; }
+
+    .text-green { color: #09B200; }
+    .text-red { color: #BD0000; }
+    .text-yellow { color: #FFE602; }
+  </style>
+</head>
+<body>
+
+  <button class="music-btn" onclick="toggleMusic()">🎵 Toggle Music</button>
+
+  <audio id="bg-music" src="Music/music.mp3" loop></audio>
+
+  <div class="status-container">
+    <div id="status-dot" class="status-dot status-green"></div>
+    <span id="status-text" class="status-text text-green"></span>
+  </div>
+
+  <div class="main-container">
+
+    <div id="home-page" class="page-section active">
+      <div class="version-tag">Version 1.0</div>
+      <img class="home-pfp" src="Gifs/discord-pfp.gif" alt="RpBot Avatar">
+      <h1>RpBot</h1>
+      <p class="subtitle">Your ultimate assistant for immersive Discord roleplaying.</p>
+      
+      <div class="button-container">
+        <a class="btn btn-invite" href="https://discord.com/oauth2/authorize?client_id=1530468130281750588&permissions=8&integration_type=0&scope=bot" target="_blank">Invite Bot</a>
+        <button class="btn btn-commands" onclick="showPage('commands-page')">Bot Commands</button>
+      </div>
+
+      <p class="disclaimer-text">
+        Please leave the bot for admin. This makes it alot more easier. We do not have access to the bot once its inside your server. Only the code and Profile :)
+      </p>
+    </div>
+
+    <div id="commands-page" class="page-section">
+      <button class="nav-back" onclick="showPage('home-page')">← Back to Home</button>
+      <h2 style="margin-bottom: 25px; font-size: 2.2rem;">📜 Bot Commands</h2>
+
+      <div class="command-card card-memory">
+        <h3 class="card-title">Memory</h3>
+        <p class="cmd-text">
+          <strong>Clear</strong> - Clears the bots memory of the conversation in that channel.<br>
+          <span class="cmd-code">/Clear or !Clear</span>
+        </p>
+        <p class="cmd-text" style="margin-top: 15px;">
+          <strong>Summary</strong> - Gives the summary of what is going on in that channel. What RP is happening and what the AI remembers.<br>
+          <span class="cmd-code">/Summary or !Summary</span>
+        </p>
+      </div>
+
+      <div class="command-card card-roleplay">
+        <h3 class="card-title">Roleplay Commands</h3>
+        <p class="cmd-text green-text">
+          <strong>Start</strong> - You do not have to @ the bot<br>
+          <span class="cmd-code">/Start or !start</span>
+        </p>
+        <p class="cmd-text green-text" style="margin-top: 15px;">
+          <strong>Stop</strong> - You have to @ the bot<br>
+          <span class="cmd-code">/stop or !stop</span>
+        </p>
+      </div>
+
+      <div class="command-card card-rules">
+        <h3 class="card-title">Bot Rules</h3>
+        <p class="cmd-text">
+          <strong>Important</strong> - Sets the Roleplays rule for the bot. This will not be cleared when the bot wipes its brain<br>
+          <span class="cmd-code">/important (for text only) or !Important (with an image)</span>
+        </p>
+      </div>
+
+      <div class="command-card card-server-helper">
+        <h3 class="card-title">Server Helper Commands</h3>
+        <p class="cmd-text">
+          <strong>TicketSetup</strong> - Allows people to make tickets<br>
+          <span class="cmd-code">!TicketSetup or /ticketsetup</span>
+        </p>
+      </div>
+
+      <p class="commands-footer-text">
+        I wouldn't use important update because it may get removed.
+      </p>
+    </div>
+
+  </div>
+
+  <script>
+    const audio = document.getElementById('bg-music');
+    const MAX_VOLUME = 0.15;
+
+    function fadeInAudio() {
+      audio.volume = 0;
+      let playPromise = audio.play();
+
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          let fadeInterval = setInterval(() => {
+            if (audio.volume < MAX_VOLUME) {
+              audio.volume = Math.min(MAX_VOLUME, audio.volume + 0.01);
+            } else {
+              clearInterval(fadeInterval);
+            }
+          }, 150);
+        }).catch(error => {
+          console.log("Autoplay prevented. User interaction required.");
+        });
+      }
+    }
+
+    function toggleMusic() {
+      if (audio.paused) {
+        fadeInAudio();
+      } else {
+        audio.pause();
+      }
+    }
+
+    document.addEventListener('click', function startAudio() {
+      if (audio.paused) {
+        fadeInAudio();
+      }
+    }, { once: true });
+
+    function showPage(pageId) {
+      document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.remove('active');
+      });
+
+      document.getElementById(pageId).classList.add('active');
+
+      if (pageId === 'commands-page') {
+        document.body.classList.add('commands-active');
+      } else {
+        document.body.classList.remove('commands-active');
+      }
+    }
+
+    /* =======================================
+       AUTOMATED BOT STATUS CHECKER
+       ======================================= */
+    let typingTimeout;
+
+    function typeWriterEffect(text, elementId, speed = 80) {
+      const element = document.getElementById(elementId);
+      element.innerHTML = "";
+      let i = 0;
+      clearTimeout(typingTimeout);
+
+      function type() {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          typingTimeout = setTimeout(type, speed);
+        }
+      }
+      type();
+    }
+
+    async function fetchBotStatus() {
+      const dot = document.getElementById('status-dot');
+      const textElem = document.getElementById('status-text');
+
+      try {
+        const response = await fetch('http://localhost:8080/status');
+        const data = await response.json();
+
+        dot.className = 'status-dot';
+        textElem.className = 'status-text';
+        clearTimeout(typingTimeout);
+
+        if (data.status === 'dnd') {
+          // 🟡 Maintenance / Do Not Disturb
+          dot.classList.add('status-yellow');
+          textElem.classList.add('text-yellow', 'flash');
+          textElem.innerText = "The Bot Is under repair!";
+        } else {
+          // 🟢 Online
+          dot.classList.add('status-green');
+          textElem.classList.add('text-green');
+          typeWriterEffect("The Bot Is Up", "status-text", 80);
+        }
+
+      } catch (error) {
+        // 🔴 Bot is offline or stopped
+        dot.className = 'status-dot status-red';
+        textElem.className = 'status-text text-red flash';
+        clearTimeout(typingTimeout);
+        textElem.innerText = "The Bot Is Down!";
+      }
+    }
+
+    // Check status immediately on load, then every 5 seconds
+    fetchBotStatus();
+    setInterval(fetchBotStatus, 5000);
+  </script>
+</body>
+</html>
