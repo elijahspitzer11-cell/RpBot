@@ -216,57 +216,6 @@
       z-index: 10;
     }
 
-    /* Bottom-Left Status Indicator */
-    .status-container {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 10px 16px;
-      border-radius: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(8px);
-      z-index: 100;
-    }
-
-    .status-dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      animation: blink 2s infinite ease-in-out;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.2; transform: scale(0.85); }
-    }
-
-    @keyframes textFlash {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.2; }
-    }
-
-    .status-text {
-      font-size: 0.95rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    .status-text.flash {
-      animation: textFlash 2s infinite ease-in-out;
-    }
-
-    .status-green { background-color: #09B200; box-shadow: 0 0 10px #09B200; }
-    .status-red { background-color: #BD0000; box-shadow: 0 0 10px #BD0000; }
-    .status-yellow { background-color: #FFE602; box-shadow: 0 0 10px #FFE602; }
-
-    .text-green { color: #09B200; }
-    .text-red { color: #BD0000; }
-    .text-yellow { color: #FFE602; }
-
     /* Bottom-Right Contact Us Button */
     .contact-btn {
       position: fixed;
@@ -297,11 +246,6 @@
   <button class="music-btn" onclick="toggleMusic()">🎵 Toggle Music</button>
 
   <audio id="bg-music" src="Music/music.mp3" loop></audio>
-
-  <div class="status-container">
-    <div id="status-dot" class="status-dot status-green"></div>
-    <span id="status-text" class="status-text text-green"></span>
-  </div>
 
   <a href="https://docs.google.com/forms/d/e/1FAIpQLSdFVfC-2NqLuJ6Vd-zdSOitAHgS9GDqIDmodiJwAXrArQuRSQ/viewform?usp=dialog" target="_blank" class="contact-btn">Contact Us</a>
 
@@ -424,58 +368,6 @@
         document.body.classList.remove('commands-active');
       }
     }
-
-    /* AUTOMATED BOT STATUS CHECKER */
-    let typingTimeout;
-
-    function typeWriterEffect(text, elementId, speed = 80) {
-      const element = document.getElementById(elementId);
-      element.innerHTML = "";
-      let i = 0;
-      clearTimeout(typingTimeout);
-
-      function type() {
-        if (i < text.length) {
-          element.innerHTML += text.charAt(i);
-          i++;
-          typingTimeout = setTimeout(type, speed);
-        }
-      }
-      type();
-    }
-
-    async function fetchBotStatus() {
-      const dot = document.getElementById('status-dot');
-      const textElem = document.getElementById('status-text');
-
-      try {
-        const response = await fetch('http://localhost:8080/status');
-        const data = await response.json();
-
-        dot.className = 'status-dot';
-        textElem.className = 'status-text';
-        clearTimeout(typingTimeout);
-
-        if (data.status === 'dnd') {
-          dot.classList.add('status-yellow');
-          textElem.classList.add('text-yellow', 'flash');
-          textElem.innerText = "The Bot Is under repair!";
-        } else {
-          dot.classList.add('status-green');
-          textElem.classList.add('text-green');
-          typeWriterEffect("The Bot Is Up", "status-text", 80);
-        }
-
-      } catch (error) {
-        dot.className = 'status-dot status-red';
-        textElem.className = 'status-text text-red flash';
-        clearTimeout(typingTimeout);
-        textElem.innerText = "The Bot Is Down!";
-      }
-    }
-
-    fetchBotStatus();
-    setInterval(fetchBotStatus, 5000);
   </script>
 </body>
 </html>
